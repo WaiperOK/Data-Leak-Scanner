@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"email":"analyst@example.com","token":"AKIA1234567890ABCD12"}

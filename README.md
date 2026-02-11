@@ -1,34 +1,61 @@
 # Data-Leak-Scanner
 
-## Описание
+Deterministic data leak detection engine for HTTP payloads, Burp workflows, and CI pipelines.
 
-Расширение Burp Suite для автоматического обнаружения потенциальных утечек данных на посещаемых веб-страницах.
+## Why this repo matters
+Data-Leak-Scanner demonstrates a practical DLP-like workflow for AppSec teams:
+- inspect HTTP responses and logs for exposed sensitive data
+- produce machine-readable findings for triage and reporting
+- run either as CLI, API service, or Burp extension adapter
 
-## Установка
+## Architecture
+```mermaid
+flowchart LR
+  A["Raw HTTP/Text"] --> B["Detection Engine"]
+  C["CLI"] --> B
+  D["HTTP API /v1/scan"] --> B
+  E["Burp Adapter"] --> B
+  B --> F["Findings JSON"]
+  B --> G["Severity Summary"]
+  B --> H["Metrics /metrics"]
+```
 
-1. Откройте Burp Suite.
-2. Перейдите во вкладку "Extender" -> "Extensions".
-3. Найдите раздел "Burp Extensions".
-4. Нажмите "Add" и укажите путь к файлу `data_leak_scanner.py`.
+## Quick start
+```bash
+python -m venv .venv
+.venv/bin/pip install -e '.[dev]'
+.venv/bin/data-leak-scanner scan-http --input examples/sample_http_response.txt --output report.json
+cat report.json
+```
 
-## Использование
+### API mode
+```bash
+.venv/bin/data-leak-scanner serve --host 0.0.0.0 --port 8086
+```
 
-1. Запустите Burp Suite.
-2. Перейдите во вкладку "Scanner".
-3. Убедитесь, что сканер включен.
-4. Посещайте веб-страницы.
-5. Результаты сканирования будут отображаться во вкладке "Scanner".
+Endpoints:
+- `GET /healthz`
+- `POST /v1/scan`
+- `GET /metrics`
 
-## Опции
+### Docker stack
+```bash
+make docker-up
+```
 
-- **Select data types to search**: Отметьте типы данных для поиска (кредитные карты, email адреса).
+Services:
+- Scanner API: `http://localhost:8086`
+- Prometheus: `http://localhost:9096`
 
-## Логирование
+## Testing
+```bash
+make lint
+make test
+```
 
-Результаты сканирования сохраняются в файлы `leaks.txt` и `leaks_test.txt` в текущей директории.
+## Security
+- Policy: `SECURITY.md`
+- Threat model: `docs/THREAT_MODEL.md`
 
-## Лицензия
-
-[MIT License](LICENSE)
-
-waiper
+## Legacy
+Original monolithic Burp script is preserved in `legacy/data_leak_scanner_burp_v1.py`.

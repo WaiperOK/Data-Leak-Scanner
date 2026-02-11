@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  data-leak-scanner:
+    build: .
+    command: ["data-leak-scanner", "serve", "--host", "0.0.0.0", "--port", "8086"]
+    ports:
+      - "8086:8086"
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    ports:
+      - "9096:9090"
+    volumes:
+      - ./deployment/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - data-leak-scanner
